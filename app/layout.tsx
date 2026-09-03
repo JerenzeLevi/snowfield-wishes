@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "A wish in the snow",
     description: "Leave a Christmas wish in the sea of snow.",
+    images: ["/chirstmas.jpg"],
   },
 };
 

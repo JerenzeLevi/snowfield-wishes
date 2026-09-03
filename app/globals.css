@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #070b18;
-  --foreground: #eaf2ff;
+  --background: #05101a;
+  --foreground: #eef4f2;
 }
 
 @theme inline {
@@ -12,82 +12,219 @@
   --font-hand: var(--font-hand);
 }
 
+html {
+  background: var(--background);
+}
 html,
 body {
-  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
-
 body {
+  background: transparent;
+}
+
+/* deep midnight evergreen + a faint, heavily dimmed real winter backdrop */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background:
-    radial-gradient(1200px 800px at 50% -10%, #1b2c5a 0%, transparent 60%),
-    radial-gradient(900px 700px at 85% 20%, #16234a 0%, transparent 55%),
-    linear-gradient(180deg, #0a1230 0%, #070b18 55%, #05070f 100%);
-  background-attachment: fixed;
+    radial-gradient(1100px 760px at 50% -12%, rgba(17, 34, 51, 0.6) 0%, transparent 62%),
+    radial-gradient(900px 700px at 82% 8%, rgba(12, 42, 42, 0.55) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(10, 28, 36, 0.86) 0%, rgba(7, 20, 24, 0.92) 52%, rgba(3, 8, 12, 0.97) 100%),
+    url("/chirstmas.jpg") center 28% / cover no-repeat;
+}
+
+/* cozy amber glow behind the tree silhouette, gently pulsing */
+body::after {
+  content: "";
+  position: fixed;
+  left: 50%;
+  top: 46%;
+  width: 46vw;
+  height: 46vw;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(255, 197, 122, 0.16) 0%,
+    rgba(255, 176, 102, 0.08) 38%,
+    transparent 70%
+  );
+  animation: tree-glow 6s ease-in-out infinite;
+}
+@keyframes tree-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::after {
+    animation: none;
+  }
 }
 
 .font-hand {
   font-family: var(--font-hand), "Segoe Script", cursive;
 }
 
-/* paper note */
+/* ---- paper note ---- */
 .note-paper {
-  background: linear-gradient(180deg, #fffef8 0%, #f3f0e2 100%);
+  position: relative;
+  background: linear-gradient(180deg, #fffef8 0%, #f2ede0 100%);
   color: #2a2a24;
+  /* warm lantern cast + a soft dark lift; no stark white bars */
   box-shadow:
-    0 10px 30px -12px rgba(0, 0, 0, 0.6),
-    0 2px 6px rgba(0, 0, 0, 0.25);
+    0 0 60px rgba(255, 214, 153, 0.08),
+    0 18px 40px -20px rgba(0, 0, 0, 0.72);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+/* one organic mound of snow settled along the bottom edge */
 .note-paper::after {
-  /* half-buried snow drift along the bottom edge */
   content: "";
   position: absolute;
-  left: -6%;
-  right: -6%;
-  bottom: -10%;
-  height: 46%;
-  background: radial-gradient(60% 100% at 50% 100%, #ffffff 0%, rgba(255, 255, 255, 0.85) 45%, transparent 75%);
-  filter: blur(1px);
+  left: 8%;
+  right: 8%;
+  bottom: -9px;
+  height: 30%;
+  background: radial-gradient(
+    70% 120% at 50% 100%,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.55) 40%,
+    transparent 72%
+  );
+  border-radius: 50%;
+  filter: blur(3px);
   pointer-events: none;
+}
+/* soft powder settled on the top edge of a closed note (organic, not a bar) */
+.note-paper::before {
+  content: "";
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: -6px;
+  height: 20%;
+  background: radial-gradient(
+    80% 120% at 50% 0%,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.4) 45%,
+    transparent 75%
+  );
+  border-radius: 50%;
+  filter: blur(2.5px);
+  pointer-events: none;
+}
+.note-paper:hover {
+  box-shadow:
+    0 0 80px rgba(255, 214, 153, 0.14),
+    0 22px 46px -18px rgba(0, 0, 0, 0.7);
 }
 
-/* falling snow layers */
-.snow-layer {
-  position: fixed;
+/* ---- wax seal (mood badge) ---- */
+.wax-seal {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 9999px;
+  font-family: var(--font-hand), cursive;
+  line-height: 1;
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.35),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.35),
+    0 2px 5px rgba(0, 0, 0, 0.3);
+  background-image: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.28), transparent 60%);
+}
+
+/* ---- parchment (the unfolded wish) ---- */
+.parchment {
+  position: relative;
+  color: #2f2a20;
+  background-color: #f7f0dd;
+  background-image:
+    radial-gradient(120% 80% at 50% -10%, rgba(255, 255, 255, 0.7), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(120, 96, 60, 0.05) 0 2px, transparent 2px 5px),
+    linear-gradient(180deg, #f9f3e2 0%, #efe6cd 100%);
+  box-shadow:
+    0 30px 70px -20px rgba(0, 0, 0, 0.75),
+    inset 0 0 60px rgba(150, 120, 70, 0.18);
+}
+/* crease lines from being folded */
+.parchment::after {
+  content: "";
+  position: absolute;
   inset: 0;
   pointer-events: none;
-  background-repeat: repeat;
-  z-index: 0;
+  background:
+    linear-gradient(90deg, transparent calc(50% - 1px), rgba(90, 70, 40, 0.14) 50%, transparent calc(50% + 1px)),
+    linear-gradient(0deg, transparent calc(33% - 1px), rgba(90, 70, 40, 0.1) 33%, transparent calc(33% + 1px)),
+    linear-gradient(0deg, transparent calc(66% - 1px), rgba(90, 70, 40, 0.1) 66%, transparent calc(66% + 1px));
 }
-@keyframes snow-fall {
-  to {
-    background-position-y: 2000px;
+
+/* ---- the unfold ritual ---- */
+@keyframes unfold {
+  0% {
+    opacity: 0;
+    transform: perspective(1200px) rotateX(-82deg) scale(0.7);
+  }
+  55% {
+    opacity: 1;
+    transform: perspective(1200px) rotateX(8deg) scale(1.02);
+  }
+  100% {
+    transform: perspective(1200px) rotateX(0deg) scale(1);
   }
 }
-.snow-a {
-  background-image:
-    radial-gradient(2px 2px at 20px 30px, #fff, transparent),
-    radial-gradient(2px 2px at 120px 80px, #fff, transparent),
-    radial-gradient(1px 1px at 200px 160px, #fff, transparent),
-    radial-gradient(2px 2px at 300px 40px, #fff, transparent);
-  background-size: 360px 360px;
-  animation: snow-fall 18s linear infinite;
-  opacity: 0.8;
+.unfolding {
+  transform-origin: top center;
+  animation: unfold 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.snow-b {
-  background-image:
-    radial-gradient(1px 1px at 50px 60px, #fff, transparent),
-    radial-gradient(1px 1px at 150px 180px, #fff, transparent),
-    radial-gradient(1px 1px at 250px 100px, #fff, transparent);
-  background-size: 300px 300px;
-  animation: snow-fall 32s linear infinite;
-  opacity: 0.5;
+@keyframes veil-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.veil-in {
+  animation: veil-in 0.25s ease both;
+}
+
+/* ---- warm-a-wish ember particle ---- */
+@keyframes ember-rise {
+  0% {
+    opacity: 0.9;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx, 0), -46px) scale(0.4);
+  }
+}
+.ember {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #ffd98a 0%, #ff9d3c 60%, transparent 75%);
+  pointer-events: none;
+  animation: ember-rise 1s ease-out forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .snow-a,
-  .snow-b {
-    animation: none;
+  .unfolding,
+  .veil-in,
+  .ember {
+    animation-duration: 0.001s;
   }
 }

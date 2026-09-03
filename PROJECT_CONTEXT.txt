@@ -1,0 +1,258 @@
+===============================================================================
+ A WISH IN THE SNOW  -  PROJECT CONTEXT & STATE
+ Last updated: 2026-09-03 (rev 2 - dual-faceted identity + canvas visual pass)
+===============================================================================
+
+CHANGELOG
+  rev 3  Thematic moods + cozy interactions (inspired by the quiet mood of
+         bottleofmessage, NOT a clone). Each wish now carries a `mood`
+         (longing / gratitude / hopes) shown as a wax-seal badge + coloured
+         bottom edge (burgundy / pine green / gold) on notes, in search
+         results, and on the unfolded card; picker added to the composer.
+         New `warm_count` + "Warm a Wish" reaction (cocoa cup, quiet counter
+         "Warmed by X wandering strangers", golden ember particles, localStorage
+         dedupe) via warm_wish() RPC + POST /api/wishes/[id]/warm. The plain
+         modal became the "unfold ritual": parchment texture + fold-crease
+         lines + a perspective rotateX unfold animation. Footprint fade 18s->15s.
+         Soft organic snow powder re-added to the TOP edge of closed notes.
+         Files: lib/mood.ts, components/MoodSeal.tsx, components/WarmButton.tsx.
+         Migration: mood_and_warm.
+  rev 2  Identity model changed from either/or to DUAL-FACETED with opt-in
+         search. Every wish now has first name + surname + alias. A boolean
+         `searchable` controls whether the real name is discoverable; the alias
+         is ALWAYS shown on the snowfield, real names are NEVER sent to the
+         field API. Visual pass: canvas 3-layer parallax snow (sine flutter,
+         crystalline glyph sprites on the hero layer, mouse drift), deep
+         midnight-evergreen palette, amber card halation, CSS snow-cap on note
+         top edges with hover brush-off, drag footprint trails on the field.
+  rev 1  Initial build (either/or named-OR-alias privacy toggle).
+
+-------------------------------------------------------------------------------
+1. WHAT THIS IS
+-------------------------------------------------------------------------------
+A festive web app where anyone can post a Christmas wish. Two ways wishes are
+found:
+
+  1. NAME SEARCH   - a visitor types a first name + surname; they see the wish
+                     cards that person chose to make findable by their real name.
+
+  2. PUBLIC SNOWFIELD (the home page) - a calm dark winter-night canvas with
+                     falling snow. Wishes that were NOT opted into name-search
+                     drift here as half-buried paper notes, signed with an
+                     ALIAS. You drag/pan around the field and click a note to
+                     unfold and read it. You might stumble on your own.
+
+Per-wish identity (rev 2, dual-faceted): every wish collects first name +
+surname + alias. The alias is ALWAYS what shows on the public snowfield; real
+names are never sent to the field API. A "Let people find this by my name"
+checkbox (default on) sets `searchable` - when off, the wish still drifts on the
+field under its alias but the name cannot be looked up in /search.
+
+Moderation model: auto-publish + a best-effort profanity wordlist filter.
+Anyone can "report" a wish; 3 reports auto-hides it. A secret-gated /admin page
+can hide / un-hide anything.
+
+-------------------------------------------------------------------------------
+2. CURRENT STATE  (working, local only - NOT deployed)
+-------------------------------------------------------------------------------
+STATUS: Feature-complete v1. Runs locally. `next build` passes. All API flows
+        verified with curl. Pages render with 0 console errors.
+
+DECISION LOG:
+  - Backend: real shared backend (persists across devices).           [done]
+  - DB: Supabase (Postgres + RLS) chosen over Firebase.               [done]
+  - Moderation: auto-publish + profanity filter + report/hide.        [done]
+  - Name search: wisher opts in per wish (named OR alias, never both). [done]
+  - Visual: calm drifting snowfield, notes half-buried, click-unfold.  [done]
+  - Deployment: DEFERRED by user - "keep it local for now".           [pending]
+
+SUPABASE PROJECT:
+  name:        christmas-wishes
+  project ref: owngfyjksffbwpqxlacu
+  region:      eu-west-2
+  URL:         https://owngfyjksffbwpqxlacu.supabase.co
+  plan:        Free ($0/mo)
+  anon key:    sb_publishable__Tm1bhnWY5JfET_AbLDpBQ_Uxm6DhFk  (publishable, safe for client)
+
+ADMIN SECRET (rotated 2026-09-03): RRddKpk29RM20VZzkf8nX8cglUyplhjZ
+  - stored in Supabase table public.app_config (key = 'admin_secret')
+  - stored locally in .env.local as ADMIN_SECRET
+  - CHANGE THIS again before any public deploy.
+
+LOCAL DEV:
+  cd C:\D\project\christmas-wishes
+  npm run dev            # http://localhost:3123 during this session (default 3000 otherwise)
+  Env comes from .env.local (gitignored). .env.example holds the placeholders.
+
+GIT: local repo only, no remote.
+  a7e5e60  Initial commit from Create Next App
+  f30676b  Build Christmas wishes site: snowfield, name search, compose, moderation
+
+KNOWN LIMITATIONS (acceptable for a v1 toy):
+  - The profanity filter + any rate limiting live in the Next.js API layer, but
+    the Supabase RPC functions (create_wish, report_wish) are also granted to
+    the anon role, so a determined user could call them directly and bypass the
+    filter. The report -> auto-hide and /admin are the real safety net.
+  - No rate limiting yet (follow-up: Vercel Firewall or IP+time check).
+  - Snowfield renders every loaded note; fine to a few hundred, would need
+    viewport culling / clustering at thousands.
+  - No edit/delete for a wish once posted.
+
+-------------------------------------------------------------------------------
+3. HOW IT'S BUILT
+-------------------------------------------------------------------------------
+STACK
+  - Next.js 16 (App Router, TypeScript, Turbopack) - front end + API routes in
+    one project.
+  - React 19.
+  - Tailwind CSS v4 (@import "tailwindcss" in app/globals.css) + a bit of custom
+    CSS for the paper notes and the falling-snow layers.
+  - @supabase/supabase-js - single anon-key client (lib/supabase.ts).
+  - zod - request validation (lib/validation.ts).
+  - next/font/google - Geist (UI) + Caveat (the handwritten "--font-hand").
+
+DATA MODEL  (Supabase, schema: public)
+  table wishes   (rev 2 - dual-faceted)
+    id            uuid  pk  default gen_random_uuid()
+    body          text  not null, 1..500 chars
+    first_name    text  NOT NULL
+    last_name     text  NOT NULL
+    alias         text  NOT NULL
+    searchable    boolean NOT NULL default true  - is the real name discoverable
+    name_search   text  GENERATED: when searchable -> lower(trim(first)||' '||
+                        trim(last)); else NULL (so opted-out wishes never match).
+                        Indexed - this is what /search matches on.
+    x, y          double precision NOT NULL - stable snowfield position, assigned
+                        server-side for EVERY wish (all wishes drift on the field).
+    status        text  'visible' | 'hidden'  (default 'visible')
+    report_count  int   default 0
+    created_at    timestamptz default now()
+    CHECK names_present: first/last/alias all non-blank.
+    indexes: (name_search); partial (created_at desc) where status='visible'.
+
+  table app_config (key text pk, value text)
+    - holds the admin secret. RLS enabled with NO policies => unreachable by the
+      anon/authenticated roles; only SECURITY DEFINER functions can read it.
+
+  ROW LEVEL SECURITY on wishes:
+    - SELECT: allowed only where status = 'visible'  (public read).
+    - INSERT / UPDATE: no policy => denied to anon. All writes go through
+      SECURITY DEFINER rpc functions instead:
+        create_wish(body, first, last, alias, searchable, x, y) -> wishes
+        report_wish(id)          -- +1 report_count, auto-set status='hidden' at 3
+        admin_list_wishes(secret)             -- returns up to 200 rows, all statuses
+        admin_set_status(secret, id, status)  -- hide / un-hide
+      admin_* functions compare `secret` against app_config before doing anything.
+
+MIGRATIONS APPLIED (via Supabase MCP, in order):
+    create_wishes          - table, generated column, indexes, RLS + select policy
+    wish_rpcs              - create_wish, report_wish (+ grants)
+    admin_rpcs             - app_config table + admin_list_wishes, admin_set_status
+    dual_faceted_identity  - drop visibility, add searchable boolean, all of
+                             first/last/alias/x/y NOT NULL, rebuild name_search
+                             as opt-in, replace create_wish signature
+
+REQUEST FLOW - creating a wish:
+    Browser (components/WishComposer.tsx)
+      -> POST /api/wishes (app/api/wishes/route.ts)
+         - zod parse (lib/validation.ts)
+         - profanity check on body/alias/name (lib/profanity.ts) -> 422 if hit
+         - if alias: randomPosition() within FIELD bounds (lib/field.ts)
+         - supabase.rpc('create_wish', ...)
+      -> returns the new row; UI shows a success screen. For alias wishes the
+         "Find it in the field" link is /?focus=<id>, which the snowfield uses
+         to centre the view on that note.
+
+REQUEST FLOW - the snowfield:
+    app/page.tsx (server) renders <Snow/> + <SiteHeader/> + <SnowField/> (client,
+    wrapped in <Suspense> because it uses useSearchParams).
+    components/SnowField.tsx:
+      - on mount, pages through GET /api/wishes/field?cursor=... (keyset paging
+        on created_at, 60/page, cap ~400) into one array.
+      - centres the viewport on ?focus=<id> if present, else on the centroid of
+        loaded notes.
+      - notes are absolutely positioned on a FIELD.width x FIELD.height plane
+        (lib/field.ts, currently 2600x1800); the plane is panned by mutating a
+        translate() transform on pointer drag / arrow keys (offset is clamped so
+        you can't pan past the edges).
+      - deterministic per-note rotation from a hash of the id.
+      - click (when not dragging) opens a modal reusing <WishCard/>, which has
+        the "report" button -> POST /api/wishes/<id>/report.
+
+NAME SEARCH:
+    components/NameSearch.tsx -> GET /api/wishes/search?first=&last=
+    -> app/api/wishes/search/route.ts does a direct supabase.from('wishes')
+       .select(...).eq('visibility','named').eq('status','visible')
+       .eq('name_search', `${first} ${last}`)  (both lowercased+trimmed).
+    Exact match on the normalised full name. Empty state if nothing.
+
+ADMIN:
+    app/admin/page.tsx (client) - password field, token kept in sessionStorage.
+    -> GET  /api/admin/wishes           (header x-admin-token)
+       POST /api/admin/wishes {id,status}
+    app/api/admin/wishes/route.ts checks the header against process.env.ADMIN_SECRET,
+    then calls admin_list_wishes / admin_set_status with the same secret.
+    Not linked from anywhere in the UI - you navigate to /admin directly.
+
+STYLING NOTES (app/globals.css):
+    - body: layered radial + linear gradients = deep indigo winter night.
+    - .note-paper: cream gradient card + shadow; ::after draws a white radial
+      "snow drift" over the bottom edge so notes look half-buried.
+    - .snow-a / .snow-b: two fixed full-screen layers of radial-gradient dots,
+      animated by shifting background-position-y; disabled under
+      prefers-reduced-motion.
+    - .font-hand: Caveat, used for the title, wishes, and signatures.
+
+-------------------------------------------------------------------------------
+4. FILE MAP
+-------------------------------------------------------------------------------
+  app/
+    layout.tsx                     fonts, <html>/<body>, metadata
+    globals.css                    theme + snow + paper-note CSS
+    page.tsx                       "/"  snowfield page (server)
+    wish/page.tsx                  "/wish"  compose page
+    search/page.tsx                "/search"  name search page
+    admin/page.tsx                 "/admin"  moderation (client)
+    api/wishes/route.ts                     POST create wish
+    api/wishes/search/route.ts              GET name search
+    api/wishes/field/route.ts              GET paged alias wishes for the field
+    api/wishes/[id]/report/route.ts        POST report a wish
+    api/admin/wishes/route.ts              GET list / POST set-status (token-gated)
+  components/
+    SiteHeader.tsx                 title + "Search by name" / "Make a wish"
+    Snow.tsx                       canvas 3-layer parallax snowfall (global bg)
+    SnowField.tsx                  pannable field, note rendering, unfold modal,
+                                   footprint-trail canvas
+    WishCard.tsx                   reusable paper-note card + report button
+    WishComposer.tsx              compose form: body, first, last, alias,
+                                   "findable by my name" checkbox
+    NameSearch.tsx                the search form + results
+  lib/
+    supabase.ts                    anon client + Wish type
+    validation.ts                  zod createWishSchema (first/last/alias/searchable)
+    profanity.ts                   wordlist + leet normalisation -> findProfanity()
+    field.ts                       FIELD bounds + randomPosition()
+  .env.local                       real secrets (gitignored)
+  .env.example                     placeholders
+  PROJECT_CONTEXT.txt              this file
+
+-------------------------------------------------------------------------------
+5. NEXT STEPS / DEPLOYMENT (deferred)
+-------------------------------------------------------------------------------
+GitHub Pages will NOT work - the app has server-side API routes. Deploy to
+Vercel (or any Node host).
+
+To deploy on Vercel:
+  1. Push this repo to GitHub, import the repo in Vercel (framework auto-detects
+     as Next.js). Or use the Vercel CLI / MCP deploy.
+  2. Set env vars on the Vercel project (Production + Preview):
+       NEXT_PUBLIC_SUPABASE_URL       = https://owngfyjksffbwpqxlacu.supabase.co
+       NEXT_PUBLIC_SUPABASE_ANON_KEY  = sb_publishable__Tm1bhnWY5JfET_AbLDpBQ_Uxm6DhFk
+       ADMIN_SECRET                   = <generate a fresh strong value, then also
+                                        UPDATE public.app_config SET value=... WHERE key='admin_secret'>
+  3. Deploy. Smoke-test on the preview URL: post an alias wish, post a named
+     wish, search the name, report x3 -> auto-hide, /admin un-hide.
+
+Nice-to-haves after launch: rate limiting on POST /api/wishes, viewport culling
+for the field at scale, optional secret edit/delete link per wish.
+===============================================================================

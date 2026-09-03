@@ -12,8 +12,8 @@ export async function GET(request: Request) {
 
   const { data, error } = await supabase
     .from("wishes")
-    .select("id, body, first_name, last_name, created_at")
-    .eq("visibility", "named")
+    .select("id, body, first_name, last_name, mood, warm_count, created_at")
+    .eq("searchable", true)
     .eq("status", "visible")
     .eq("name_search", `${first} ${last}`)
     .order("created_at", { ascending: false })

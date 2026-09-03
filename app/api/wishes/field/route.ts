@@ -9,10 +9,8 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from("wishes")
-    .select("id, body, alias, x, y, created_at")
-    .eq("visibility", "alias")
+    .select("id, body, alias, mood, warm_count, x, y, created_at")
     .eq("status", "visible")
-    .not("x", "is", null)
     .order("created_at", { ascending: false })
     .limit(PAGE);
 

@@ -1,0 +1,23 @@
+Let's establish our design direction for "A Wish in the Snow" inspired by the quiet, intimate mood of bottleofmessage.vercel.app, but distinctly original and Christmas-themed—DO NOT clone their UI, assets, or ocean metaphors.
+
+Here is our own distinct vision and mechanics to implement:
+
+1. THE CHRISTMAS THEME & WINTER ATMOSPHERE
+- Instead of ocean waves and floating bottles, this is a quiet, snow-covered clearing at midnight on Christmas Eve.
+- The canvas features our silhouette pine tree, layered parallax falling snow, and a dark evergreen/indigo winter night palette.
+- Panning represents gently walking or drifting through undisturbed snow.
+
+2. NOTE TYPES & THEMATIC INTENTS
+Wishes are emotional, personal, and nostalgic rather than generic messages. Support subtle thematic tags/moods during creation that affect how the note appears or is categorized:
+- "Longing & Distance" (for someone far away or missed this holiday)
+- "Quiet Gratitude" (for small blessings or someone special)
+- "Hopes for the New Year" (for courage, fresh starts, or dreams)
+- Keep this lightweight: simply a gentle badge, wax-seal color, or ribbon style (e.g., deep pine green, festive burgundy red, warm gold) rather than noisy filters.
+
+3. OUR ORIGINAL INTERACTIONS (Peak Innovation)
+- The "Unfold" Ritual: Instead of a generic modal, clicking a note plays a soft paper-unfold animation with creased parchment textures, showing the handwritten Caveat text and chosen alias.
+- "Warm a Wish" Interaction: Replace standard likes with a cozy reaction (a cup of cocoa, a lit candle, or a wool mitten). Tapping it increments a quiet counter ("Warmed by X wandering strangers") and emits soft golden ember particles.
+- Footprint Tracks: Panning across the snowfield leaves faint, temporary footprint decals that slowly fill back in with falling snow over 15 seconds.
+- Snow Settling: Closed notes in the snowfield collect a soft layer of white powder on their top edges.
+
+Please implement these features using our current Next.js + Tailwind + Supabase stack, keeping all styling uniquely tailored to our winter night aesthetic.

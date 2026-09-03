@@ -23,8 +23,8 @@ export async function POST(request: Request) {
 
   const bad =
     findProfanity(input.body) ||
-    findProfanity(input.alias ?? "") ||
-    findProfanity(`${input.firstName ?? ""} ${input.lastName ?? ""}`);
+    findProfanity(input.alias) ||
+    findProfanity(`${input.firstName} ${input.lastName}`);
   if (bad) {
     return NextResponse.json(
       { error: "That wording tripped our filter. Try rephrasing kindly." },
@@ -32,14 +32,23 @@ export async function POST(request: Request) {
     );
   }
 
-  const pos = input.visibility === "alias" ? randomPosition() : { x: null, y: null };
+  // every wish drifts onto the snowfield under its alias; space it away from
+  // the notes already out there so text doesn't clip
+  const { data: placed } = await supabase
+    .from("wishes")
+    .select("x, y")
+    .eq("status", "visible")
+    .order("created_at", { ascending: false })
+    .limit(300);
+  const pos = randomPosition(placed ?? []);
 
   const { data, error } = await supabase.rpc("create_wish", {
     p_body: input.body,
-    p_visibility: input.visibility,
-    p_first_name: input.firstName ?? null,
-    p_last_name: input.lastName ?? null,
-    p_alias: input.alias ?? null,
+    p_first: input.firstName,
+    p_last: input.lastName,
+    p_alias: input.alias,
+    p_searchable: input.searchable,
+    p_mood: input.mood,
     p_x: pos.x,
     p_y: pos.y,
   });

@@ -1,0 +1,156 @@
+===============================================================================
+A WISH IN THE SNOW - PEAK INNOVATION & WHOLESOME DESIGN PROPOSAL
+Author: Architecture & Creative Direction
+Date: September 3, 2026
+===============================================================================
+
+-------------------------------------------------------------------------------
+1. EXECUTIVE SUMMARY & CORE ARCHITECTURAL EVOLUTION
+-------------------------------------------------------------------------------
+This specification adapts "A Wish in the Snow" to combine both direct personal
+discovery and whimsical, anonymous public drifting, while elevating the
+visual, emotional, and interactive fidelity into a truly memorable holiday
+experience.
+
+KEY REFINEMENT: UNIFIED IDENTITY MODEL (DUAL-FACETED)
+Previously: Either-or privacy toggle (named OR alias, mutually exclusive).
+Now: Every wisher provides:
+  - First Name & Surname (Stored securely in DB, indexed for search)
+  - Alias / Pen Name (Used exclusively on the public winter snowfield)
+
+BEHAVIOR MATRIX:
+  * Public Landing Page (The Drifting Snowfield):
+    - Notes are scattered across the peaceful, snowy landscape.
+    - All notes display ONLY the author's Alias (or are left signed anonymously
+      with their chosen holiday handle).
+    - Casual browsers encounter genuine human vulnerability and holiday warmth
+      without exposing real identities publicly.
+
+  * Search by Name (/search):
+    - Searching "Firstname Lastname" checks the indexed directory.
+    - Returns cards sent by that individual or anyone matching that full name.
+    - Here, the recipient discovers the heartfelt wishes their friend, family
+      member, or partner left for them or the world.
+
+-------------------------------------------------------------------------------
+2. WHOLESOME & EMOTIONAL REINFORCEMENTS
+-------------------------------------------------------------------------------
+A. "WARM A WISH" (NON-TOXIC KINDNESS INTERACTION)
+   - When a note is unfolded, visitors can tap a small, glowing icon:
+     * A steaming cup of hot cocoa, a wool mitten, or a flickering matchstick.
+   - Micro-interaction: The icon softly pulses with amber candlelight, releasing
+     a subtle flurry of warm golden sparks into the snow.
+   - Counter display: "Warmed by 14 wandering strangers tonight."
+   - No dislikes, no comments, no popularity ranking algorithm. Pure quiet empathy.
+
+B. "A PRAYER BESIDE YOURS" (GENTLE REPLIES)
+   - Allow wandering visitors to attach a single short holiday blessing (max 80 chars)
+     to a card.
+   - Pinned like a small dried pine twig, ribbon, or dried orange slice onto the card.
+
+C. KEEPSAKE POLAROID EXPORT (HOLIDAY MEMORY MAKER)
+   - Upon submitting or viewing a wish, users can click "Gift this Note".
+   - Generates a downloadable, high-res canvas card:
+     * Frosted glass border, vintage postal stamp, handwritten typography,
+       and real-time falling snowflake textures.
+     * Perfect for sharing on Instagram stories, group chats, or printing.
+
+-------------------------------------------------------------------------------
+3. VISUAL UPGRADE: PEAK CHRISTMAS & THICK SNOW PARTICLES
+-------------------------------------------------------------------------------
+A. MULTI-TIER PARALLAX SNOW SYSTEM (CANVAS-DRIVEN)
+   Replace plain CSS radial-gradient dots with a high-performance 3-layer HTML5 Canvas:
+   1. Foreground Flakes (Hero/Cinematic):
+      - Large, soft-blurred circular flakes (6px - 14px).
+      - Distinct ornate geometric crystalline snowflake vector sprites (★ ❄ ❅).
+      - Drift closer to the lens with gentle horizontal sine-wave flutter.
+   2. Midground Flakes (Atmospheric):
+      - Medium crisp flakes (2px - 5px) responding slightly to mouse drift.
+   3. Background Blizzard (Depth):
+      - Dense, fine powdery specks moving rapidly to create atmospheric depth.
+
+B. INTERACTIVE ACCUMULATION & DISPLACEMENT
+   - Flakes gently settle on the top edges of paper notes.
+   - Dragging across the snowfield leaves temporary footprint trails that slowly
+     fill back in over 15-20 seconds.
+   - Hovering over paper notes gently brushes off the accumulated surface powder.
+
+C. CHRISTMAS AMBIENCE & PALETTE
+   - Deep Midnight Evergreen: Rich blue-spruce midnight gradient (#071418 to #03080c).
+   - Warm Lantern Glow: Cards radiate a soft amber halation (rgba(255, 214, 153, 0.12)).
+   - Soundscape (Muted by Default with Subtle Vinyl Toggle):
+     * Soft winter wind whistling, occasional distant church bell or music box,
+       and crunching snow beneath cursor drags.
+
+-------------------------------------------------------------------------------
+4. DATABASE & API SCHEMA UPDATES (SUPABASE)
+-------------------------------------------------------------------------------
+To implement the Dual-Faceted Identity (First+Last for Search, Alias for Canvas):
+
+A. TABLE public.wishes REVISED DDL:
+   ALTER TABLE wishes
+     ALTER COLUMN first_name SET NOT NULL,
+     ALTER COLUMN last_name SET NOT NULL,
+     ALTER COLUMN alias SET NOT NULL;
+
+   -- Generated search vector for exact & flexible full name searches
+   ALTER TABLE wishes
+     DROP COLUMN name_search;
+
+   ALTER TABLE wishes
+     ADD COLUMN name_search text GENERATED ALWAYS AS (
+       lower(trim(first_name) || ' ' || trim(last_name))
+     ) STORED;
+
+   CREATE INDEX idx_wishes_name_search ON wishes(name_search);
+   CREATE INDEX idx_wishes_field ON wishes(created_at DESC) WHERE status = 'visible';
+
+B. RPC: CREATE_WISH
+   CREATE OR REPLACE FUNCTION create_wish(
+     p_body text,
+     p_first text,
+     p_last text,
+     p_alias text,
+     p_x double precision,
+     p_y double precision
+   ) RETURNS wishes
+   LANGUAGE plpgsql SECURITY DEFINER AS $$
+   DECLARE
+     v_row wishes;
+   BEGIN
+     INSERT INTO wishes (body, first_name, last_name, alias, x, y, status)
+     VALUES (trim(p_body), trim(p_first), trim(p_last), trim(p_alias), p_x, p_y, 'visible')
+     RETURNING * INTO v_row;
+     RETURN v_row;
+   END;
+   $$;
+
+C. FIELD API ENDPOINT (GET /api/wishes/field):
+   - Returns: [{ id, body, alias, x, y, created_at, warm_count }]
+   - Explicitly OMITS `first_name` and `last_name` from public canvas queries
+     to maintain complete privacy on the field.
+
+D. SEARCH API ENDPOINT (GET /api/wishes/search?first=...&last=...):
+   - Matches: name_search = lower(trim(first) || ' ' || trim(last))
+   - Returns: Full cards matching the queried person's name.
+
+-------------------------------------------------------------------------------
+5. PEAK INNOVATION: THE HOLIDAY CONSTELLATION & SPATIAL AUDIO
+-------------------------------------------------------------------------------
+1. The Holiday Constellation (Macro Mode):
+   - A smooth scroll-out or "Look to the Sky" toggle switches the view from the
+     snowy forest clearing into a high-altitude starry night sky.
+   - Every wish in the world shines as an interconnected star.
+   - Lines softly trace out iconic winter constellations (Orion, Ursa Major,
+     The Christmas Tree cluster).
+
+2. Spatial Web Audio:
+   - Built with the Web Audio API (PannerNode).
+   - As you pan toward clusters of warm notes, soft music-box harmonies and
+     faint crackling hearth sounds pan dynamically between stereo channels.
+
+3. Dynamic Local Frost Glass Shader:
+   - Subtle WebGL or Canvas frost crystals that slowly grow inward from the
+     edges of the viewport when the user leaves the tab idle.
+
+===============================================================================

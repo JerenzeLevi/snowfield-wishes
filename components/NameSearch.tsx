@@ -3,7 +3,16 @@
 import { useState } from "react";
 import WishCard from "./WishCard";
 
-type Result = { id: string; body: string; first_name: string; last_name: string };
+import type { Mood } from "@/lib/mood";
+
+type Result = {
+  id: string;
+  body: string;
+  first_name: string;
+  last_name: string;
+  mood: Mood;
+  warm_count: number;
+};
 
 export default function NameSearch() {
   const [first, setFirst] = useState("");
@@ -72,6 +81,8 @@ export default function NameSearch() {
                 key={r.id}
                 body={r.body}
                 label={`${r.first_name} ${r.last_name}`}
+                mood={r.mood}
+                warmCount={r.warm_count}
                 wishId={r.id}
               />
             ))

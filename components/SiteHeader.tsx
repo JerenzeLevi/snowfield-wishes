@@ -15,7 +15,7 @@ export default function SiteHeader() {
         </Link>
         <Link
           href="/wish"
-          className="rounded-full bg-white px-4 py-1.5 font-medium text-[#0a1230] hover:bg-white/90 transition"
+          className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 font-medium text-white backdrop-blur-md hover:bg-white/20 transition"
         >
           Make a wish
         </Link>

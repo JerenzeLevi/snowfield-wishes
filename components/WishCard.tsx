@@ -1,16 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import MoodSeal from "./MoodSeal";
+import WarmButton from "./WarmButton";
+import type { Mood } from "@/lib/mood";
 
 export default function WishCard({
   body,
   label,
+  mood,
   wishId,
+  warmCount = 0,
   className = "",
 }: {
   body: string;
   label: string;
+  mood: Mood;
   wishId?: string;
+  warmCount?: number;
   className?: string;
 }) {
   const [reported, setReported] = useState(false);
@@ -28,11 +35,19 @@ export default function WishCard({
   }
 
   return (
-    <div className={`note-paper relative overflow-visible rounded-[14px] p-5 ${className}`}>
-      <p className="font-hand text-xl leading-snug whitespace-pre-wrap break-words">{body}</p>
-      <div className="mt-4 flex items-end justify-between gap-3">
-        <span className="font-hand text-lg text-[#7a5c33]">— {label}</span>
-        {wishId && (
+    <div className={`parchment relative overflow-hidden rounded-[14px] p-6 ${className}`}>
+      <div className="absolute right-4 top-4">
+        <MoodSeal mood={mood} />
+      </div>
+
+      <p className="mt-2 max-w-[90%] font-hand text-2xl leading-snug whitespace-pre-wrap break-words">
+        {body}
+      </p>
+      <p className="mt-4 font-hand text-lg text-[#7a5c33]">— {label}</p>
+
+      {wishId && (
+        <div className="mt-5 flex items-end justify-between gap-3 border-t border-[#d8cba8] pt-4">
+          <WarmButton wishId={wishId} initialCount={warmCount} />
           <button
             onClick={report}
             disabled={busy || reported}
@@ -40,8 +55,8 @@ export default function WishCard({
           >
             {reported ? "reported" : "report"}
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

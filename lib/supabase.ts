@@ -21,13 +21,15 @@ export const supabase = createClient(url, anonKey, {
 export type Wish = {
   id: string;
   body: string;
-  visibility: "named" | "alias";
-  first_name: string | null;
-  last_name: string | null;
-  alias: string | null;
-  x: number | null;
-  y: number | null;
+  first_name: string;
+  last_name: string;
+  alias: string;
+  searchable: boolean;
+  mood: "longing" | "gratitude" | "hopes";
+  x: number;
+  y: number;
   status: "visible" | "hidden";
   report_count: number;
+  warm_count: number;
   created_at: string;
 };
