@@ -43,3 +43,7 @@ next-env.d.ts
 # local screenshots / playwright
 .playwright-mcp/
 *.local.png
+
+AGENTS.md
+CLAUDE.md
+comment.txt
