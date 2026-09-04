@@ -33,6 +33,10 @@ export default function SnowField() {
   const viewportRef = useRef<HTMLDivElement>(null);
   const offset = useRef({ x: 0, y: 0 });
   const planeRef = useRef<HTMLDivElement>(null);
+  // world-space rectangle that must always be reachable — recomputed from the
+  // actual notes so nothing (incl. legacy notes placed outside FIELD) is trapped
+  // off-screen. PAD clears half a note plus breathing room past every edge.
+  const bounds = useRef({ minX: 0, minY: 0, maxX: FIELD.width, maxY: FIELD.height });
   const drag = useRef<{ startX: number; startY: number; ox: number; oy: number; moved: boolean } | null>(
     null,
   );
@@ -48,13 +52,34 @@ export default function SnowField() {
     }
   }, []);
 
+  const recomputeBounds = useCallback((list: FieldWish[]) => {
+    const PAD = 160;
+    let minX = 0;
+    let minY = 0;
+    let maxX = FIELD.width;
+    let maxY = FIELD.height;
+    for (const w of list) {
+      if (w.x < minX) minX = w.x;
+      if (w.x > maxX) maxX = w.x;
+      if (w.y < minY) minY = w.y;
+      if (w.y > maxY) maxY = w.y;
+    }
+    bounds.current = { minX: minX - PAD, minY: minY - PAD, maxX: maxX + PAD, maxY: maxY + PAD };
+  }, []);
+
   const clampOffset = useCallback(() => {
     const vp = viewportRef.current;
     if (!vp) return;
-    const minX = vp.clientWidth - FIELD.width;
-    const minY = vp.clientHeight - FIELD.height;
-    offset.current.x = Math.min(0, Math.max(minX, offset.current.x));
-    offset.current.y = Math.min(0, Math.max(minY, offset.current.y));
+    const b = bounds.current;
+    // offset places world point p at screen (p + offset); keep [min,max] reachable.
+    const axis = (lo: number, hi: number, view: number, cur: number) => {
+      const span = hi - lo;
+      // content smaller than the viewport on this axis → center it, don't pin
+      if (span <= view) return (view - (lo + hi)) / 2;
+      return Math.min(-lo, Math.max(view - hi, cur));
+    };
+    offset.current.x = axis(b.minX, b.maxX, vp.clientWidth, offset.current.x);
+    offset.current.y = axis(b.minY, b.maxY, vp.clientHeight, offset.current.y);
   }, []);
 
   const centerOn = useCallback(
@@ -87,6 +112,7 @@ export default function SnowField() {
       if (cancelled) return;
       setWishes(acc);
       setLoading(false);
+      recomputeBounds(acc);
 
       requestAnimationFrame(() => {
         const target = focusId ? acc.find((w) => w.id === focusId) : null;
@@ -102,7 +128,17 @@ export default function SnowField() {
     return () => {
       cancelled = true;
     };
-  }, [focusId, centerOn]);
+  }, [focusId, centerOn, recomputeBounds]);
+
+  // keep the view inside bounds when the window resizes
+  useEffect(() => {
+    function onResize() {
+      clampOffset();
+      applyTransform();
+    }
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [clampOffset, applyTransform]);
 
   // ---- footprint trail rendering ----
   useEffect(() => {
@@ -293,7 +329,10 @@ export default function SnowField() {
           className="veil-in fixed inset-0 z-30 grid place-items-center bg-black/65 p-6 backdrop-blur-sm"
           onClick={() => setOpen(null)}
         >
-          <div className="w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="max-h-[85vh] w-full max-w-sm overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <WishCard
               body={open.body}
               label={open.alias}

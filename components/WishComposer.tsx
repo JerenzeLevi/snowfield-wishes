@@ -69,16 +69,16 @@ export default function WishComposer() {
     );
   }
 
-  const bodyLeft = 500 - body.length;
+  const bodyLeft = 1500 - body.length;
 
   return (
     <form onSubmit={submit} className="mt-8 space-y-5 text-white">
       <div>
         <textarea
           value={body}
-          onChange={(e) => setBody(e.target.value.slice(0, 500))}
+          onChange={(e) => setBody(e.target.value.slice(0, 1500))}
           required
-          rows={4}
+          rows={6}
           placeholder="I wish for…"
           className="w-full resize-none rounded-xl border border-white/20 bg-white/5 p-4 font-hand text-xl outline-none placeholder:text-white/40 focus:border-amber-100/50"
         />

@@ -4,7 +4,7 @@ const trimmed = (max: number) =>
   z.string().transform((s) => s.trim()).pipe(z.string().min(1).max(max));
 
 export const createWishSchema = z.object({
-  body: trimmed(500),
+  body: trimmed(1500),
   firstName: trimmed(60),
   lastName: trimmed(60),
   alias: trimmed(40),
