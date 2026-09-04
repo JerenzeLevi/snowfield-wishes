@@ -35,8 +35,8 @@ export default function WishCard({
   }
 
   return (
-    <div className={`parchment relative overflow-hidden rounded-[14px] p-6 ${className}`}>
-      <div className="absolute right-4 top-4">
+    <div className={`parchment relative rounded-[14px] p-6 ${className}`}>
+      <div className="absolute -right-2.5 -top-2.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">
         <MoodSeal mood={mood} />
       </div>
 

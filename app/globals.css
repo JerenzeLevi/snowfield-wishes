@@ -49,12 +49,17 @@ body::after {
   transform: translate(-50%, -50%);
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(
-    circle,
-    rgba(255, 197, 122, 0.16) 0%,
-    rgba(255, 176, 102, 0.08) 38%,
-    transparent 70%
-  );
+  background:
+    radial-gradient(3px 3px at 38% 30%, rgba(255, 224, 170, 0.9), transparent 60%),
+    radial-gradient(2px 2px at 58% 44%, rgba(255, 233, 190, 0.8), transparent 60%),
+    radial-gradient(2px 2px at 47% 62%, rgba(255, 214, 150, 0.75), transparent 60%),
+    radial-gradient(3px 3px at 63% 24%, rgba(255, 236, 200, 0.7), transparent 60%),
+    radial-gradient(
+      circle,
+      rgba(255, 197, 122, 0.1) 0%,
+      rgba(255, 176, 102, 0.06) 42%,
+      transparent 72%
+    );
   animation: tree-glow 6s ease-in-out infinite;
 }
 @keyframes tree-glow {
@@ -161,6 +166,8 @@ body::after {
   content: "";
   position: absolute;
   inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
   pointer-events: none;
   background:
     linear-gradient(90deg, transparent calc(50% - 1px), rgba(90, 70, 40, 0.14) 50%, transparent calc(50% + 1px)),

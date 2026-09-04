@@ -6,7 +6,7 @@ export const FIELD = {
   margin: 120,
 };
 
-const MIN_DIST = 190; // keep notes from stacking / clipping text
+const MIN_DIST = 210; // keep notes from stacking / clipping text
 
 export function randomPosition(existing: { x: number; y: number }[] = []): {
   x: number;
@@ -17,7 +17,7 @@ export function randomPosition(existing: { x: number; y: number }[] = []): {
 
   let best = { x: rx(), y: ry() };
   let bestGap = -1;
-  for (let attempt = 0; attempt < 40; attempt++) {
+  for (let attempt = 0; attempt < 60; attempt++) {
     const cand = { x: rx(), y: ry() };
     let gap = Infinity;
     for (const p of existing) {

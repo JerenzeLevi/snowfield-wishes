@@ -47,7 +47,7 @@ const FRONT_LAYER: LayerSpec = {
   driftMax: 40,
   alpha: 0.62,
   parallax: 46,
-  glyphChance: 0,
+  glyphChance: 0.35, // some drift across as crystalline snowflakes
 };
 
 export default function Snow({ front = false }: { front?: boolean }) {
@@ -104,7 +104,7 @@ export default function Snow({ front = false }: { front?: boolean }) {
 
     function draw(dt: number) {
       c.clearRect(0, 0, w, h);
-      c.filter = front ? "blur(2.5px)" : "none";
+      c.filter = front ? "blur(3px)" : "none";
       const mx = (mouse.x - 0.5) * 2; // -1..1
       for (let li = 0; li < activeLayers.length; li++) {
         const spec = activeLayers[li];

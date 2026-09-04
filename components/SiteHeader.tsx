@@ -9,13 +9,13 @@ export default function SiteHeader() {
       <nav className="flex items-center gap-2 text-sm">
         <Link
           href="/search"
-          className="rounded-full border border-white/25 px-4 py-1.5 text-white/90 hover:bg-white/10 transition"
+          className="rounded-full px-3.5 py-1.5 text-xs text-white/80 transition-all hover:bg-white/10 hover:text-white"
         >
           Search by name
         </Link>
         <Link
           href="/wish"
-          className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 font-medium text-white backdrop-blur-md hover:bg-white/20 transition"
+          className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 font-medium text-white backdrop-blur-md transition-all hover:bg-white/20 hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]"
         >
           Make a wish
         </Link>

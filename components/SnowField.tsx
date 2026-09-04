@@ -247,7 +247,7 @@ export default function SnowField() {
                 borderBottom: `3px solid ${moodMap[w.mood].seal}`,
               }}
             >
-              <span className="absolute -right-2 -top-2">
+              <span className="absolute -right-2.5 -top-2.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">
                 <MoodSeal mood={w.mood} size={18} title={false} />
               </span>
               <p className="font-hand text-[15px] leading-tight line-clamp-4 break-words">{w.body}</p>
@@ -277,8 +277,12 @@ export default function SnowField() {
       )}
 
       <div className="pointer-events-none absolute bottom-4 left-0 right-0 z-10 flex justify-center">
-        <span className="rounded-full bg-black/30 px-3 py-1 text-xs text-slate-300 backdrop-blur-sm">
-          drag to wander · arrow keys to drift · click a note to read
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-1.5 text-xs tracking-wider text-slate-300 shadow-lg backdrop-blur-md">
+          drag to wander
+          <span className="opacity-40">·</span>
+          arrow keys to drift
+          <span className="opacity-40">·</span>
+          click a note to read
         </span>
       </div>
 
